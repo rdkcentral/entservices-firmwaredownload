@@ -21,11 +21,6 @@ cmake_minimum_required(VERSION 3.3)
 
 find_package(WPEFramework)
 
-# All packages that did not deliver a CMake Find script (and some deprecated scripts that need to be removed)
-# are located in the cmake directory. Include it in the search.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
-
-
 option(COMCAST_CONFIG "Comcast services configuration" ON)
 if(COMCAST_CONFIG)
     include(services.cmake)
@@ -37,30 +32,10 @@ string(TOLOWER ${NAMESPACE} STORAGE_DIRECTORY)
 # for writing pc and config files
 include(CmakeHelperFunctions)
 
-if(RDK_SERVICE_L2_TEST)
-    add_subdirectory(Tests/L2Tests)
-endif()
-
 option(DISABLE_SECURITY_TOKEN "Disable security token" OFF)
-
-if(RDK_SERVICES_L1_TEST)
-    add_subdirectory(Tests/L1Tests)
-endif()
 
 if(DISABLE_SECURITY_TOKEN)
     add_definitions(-DDISABLE_SECURITY_TOKEN)
-endif()
-
-if(PLUGIN_PACKAGER)
-    add_subdirectory(Packager)
-endif()
-
-if(PLUGIN_FIRMWAREUPDATE)
-    add_subdirectory(FirmwareUpdate)
-endif()
-
-if(PLUGIN_MAINTENANCEMANAGER)
-    add_subdirectory(MaintenanceManager)
 endif()
 
 if(PLUGIN_FIRMWAREDOWNLOAD)
