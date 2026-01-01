@@ -67,7 +67,7 @@ namespace WPEFramework
         ASSERT(nullptr == _firmwareDownload);
         ASSERT(0 == _connectionId);
 
-        SYSLOG(Logging::Startup, (_T(" preeja FirmwareDownload::Initialize: PID=%u"), getpid()));
+        SYSLOG(Logging::Startup, (_T(" FirmwareDownload::Initialize: PID=%u"), getpid()));
 
         _service = service;
         _service->AddRef();
