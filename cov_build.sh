@@ -19,7 +19,6 @@ cmake -G Ninja -S "$GITHUB_WORKSPACE" -B build/entservices-firmwaredownload \
 -DLIBOPKG_INCLUDE_DIRS="" \
 -DCOMCAST_CONFIG=OFF \
 -DRDK_SERVICES_COVERITY=ON \
--DRDK_SERVICES_L1_TEST=ON \
 -DPLUGIN_FIRMWAREDOWNLOAD=ON \
 -DCMAKE_CXX_FLAGS="-DEXCEPTIONS_ENABLE=ON \
 -Wall -Wno-unused-result -Wno-deprecated-declarations -Werror -Wno-error=format \
