@@ -7,7 +7,7 @@ ls -la ${GITHUB_WORKSPACE}
 ############################
 # Build entservices-firmwaredownload
 echo "======================================================================================"
-echo "buliding entservices-firmwaredownload"
+echo "building entservices-firmwaredownload"
 
 cd ${GITHUB_WORKSPACE}
 cmake -G Ninja -S "$GITHUB_WORKSPACE" -B build/entservices-firmwaredownload \
