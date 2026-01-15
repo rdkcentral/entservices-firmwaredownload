@@ -1,213 +1,92 @@
-# Architecture Overview
+# FirmwareDownload Plugin Architecture
 
-The **FirmwareDownload** project is a **template/skeleton implementation** of a plugin-based service built on the **WPEFramework** (Thunder) architecture. It provides the architectural foundation and framework integration for firmware download and management capabilities on RDK (Reference Design Kit) devices. This document outlines the overall system architecture, component interactions, and design patterns that will be employed when the implementation is completed.
+## Overview
 
-> **Current Status:** This is a skeleton implementation created from RDKEMW-7762. The core business logic methods currently return `Core::ERROR_NONE` without actual functionality and serve as placeholders for future implementation.
+The FirmwareDownload plugin is a **Thunder/WPEFramework-based service** designed for RDK (Reference Design Kit) devices to provide firmware update capabilities. It implements a **plugin architecture pattern** where the main plugin acts as a bridge between client applications and the underlying firmware download implementation.
 
-## System Architecture
+## Architecture Components
 
-### Framework Integration
-The project integrates with the **WPEFramework** (Thunder 4.x), a modular C++ framework that provides:
-- Plugin lifecycle management
-- JSON-RPC communication interface
-- Remote procedure call (RPC) mechanisms
-- Configuration management
-- Service registration and discovery
+### 1. Core Plugin Layer (`FirmwareDownload`)
+- **Purpose**: Primary plugin entry point and JSON-RPC interface management
+- **Key Responsibilities**:
+  - Plugin lifecycle management (Initialize/Deinitialize)
+  - JSON-RPC method dispatch and event handling
+  - Client notification management via Thunder framework
+  - Service registration with Thunder/WPEFramework
 
-### Core Components
+### 2. Implementation Layer (`FirmwareDownloadImplementation`) 
+- **Purpose**: Core business logic for firmware operations
+- **Design Pattern**: Singleton pattern with thread-safe operations
+- **Key Responsibilities**:
+  - Firmware search and download orchestration
+  - State management for download operations
+  - Event notification dispatch to registered clients
+  - Interface compliance with `Exchange::IFirmwareDownload`
 
-#### 1. Plugin Layer (`FirmwareDownload.h/.cpp`)
-The main plugin component implements the **PluginHost::IPlugin** interface, serving as the bridge between the WPEFramework and the firmware download functionality.
+### 3. Interface Layer (`Exchange::IFirmwareDownload`)
+- **Purpose**: Abstract interface defining firmware download contract
+- **Key Methods**:
+  - `SearchFirmware()`: Initiate firmware availability check
+  - `GetDownloadedFirmwareInfo()`: Retrieve firmware version details
+  - `GetFirmwareDownloadPercent()`: Monitor download progress
+  - `GetDownloadState()`: Query current download status
+  - `Register/Unregister()`: Client notification management
 
-**Key Responsibilities:**
-- Plugin lifecycle management (Initialize/Deinitialize)
-- Service registration with the framework
-- JSON-RPC interface exposure
-- Event notification management
-- Connection handling with remote services
+### 4. Notification System
+- **Design Pattern**: Observer pattern with asynchronous event dispatch
+- **Event Types**:
+  - `OnFirmwareAvailable`: Notifies clients about firmware availability
+- **Threading**: Uses Thunder's `Core::IWorkerPool` for thread-safe event dispatch
 
-**Design Pattern:** Facade Pattern - Provides a simplified interface to the complex firmware download subsystem.
+### 5. Helper Utilities
+- **UtilsLogging**: Standardized logging framework with thread ID tracking
+- **UtilsJsonRpc**: JSON-RPC response formatting and parameter validation macros
 
-#### 2. Implementation Layer (`FirmwareDownloadImplementation.h/.cpp`)
-The skeleton business logic implementation that defines the interface structure for firmware download services through the **Exchange::IFirmwareDownload** interface. Currently contains placeholder methods that return `Core::ERROR_NONE`.
+## Communication Flow
 
-**Planned Responsibilities:**
-- Firmware search and discovery (placeholder: `SearchFirmware()`)
-- Download progress tracking (placeholder: `GetFirmwareDownloadPercent()`)
-- State management (placeholder: `GetDownloadState()`)
-- Failure reason reporting (placeholder: `GetDownloadFailureReason()`)
-- Downloaded firmware info retrieval (placeholder: `GetDownloadedFirmwareInfo()`)
-- Event dispatching to subscribers (framework implemented)
-
-**Design Pattern:** Observer Pattern - Implements notification mechanisms for firmware events.
-
-### Interface Architecture
-
-#### COM-Style Interface System
-The system uses a COM-style interface architecture with:
-- **Interface Maps:** Define supported interfaces for each component
-- **Reference Counting:** Automatic memory management through AddRef()/Release()
-- **Interface Aggregation:** Composition of multiple interfaces
-
-#### Key Interfaces
-- **Exchange::IFirmwareDownload:** Primary service interface
-- **Exchange::IFirmwareDownload::INotification:** Event notification interface
-- **PluginHost::IPlugin:** Framework plugin interface
-- **PluginHost::JSONRPC:** JSON-RPC communication interface
-
-### Event-Driven Architecture
-
-#### Notification System
-```cpp
-class Notification : public RPC::IRemoteConnection::INotification, 
-                    public Exchange::IFirmwareDownload::INotification
+```
+Client Application
+        ↓ JSON-RPC
+Thunder Framework
+        ↓ IPlugin Interface
+FirmwareDownload Plugin
+        ↓ Exchange::IFirmwareDownload
+FirmwareDownloadImplementation
+        ↓ Platform-specific calls
+Underlying Firmware Service
 ```
 
-The notification system provides:
-- **Asynchronous Event Delivery:** Non-blocking event propagation
-- **Multiple Subscriber Support:** One-to-many event distribution
-- **Type-Safe Callbacks:** Strongly typed event interfaces
+## Threading Model
 
-#### Event Processing Pipeline
-1. **Event Generation:** Firmware operations trigger events
-2. **Event Dispatching:** Job-based asynchronous processing
-3. **Notification Delivery:** Observer pattern implementation
-4. **JSON-RPC Forwarding:** Framework-level event broadcasting
+- **Main Thread**: Plugin initialization and JSON-RPC handling
+- **Worker Pool**: Asynchronous event notification dispatch
+- **Thread Safety**: 
+  - `Core::CriticalSection _adminLock` protects notification list
+  - Reference counting for notification objects
+  - Thread-safe singleton implementation
 
-### Threading Model
+## Memory Management
 
-#### Worker Pool Integration
-The system integrates with WPEFramework's worker pool for:
-- **Asynchronous Processing:** Non-blocking operation execution
-- **Thread Safety:** Critical section protection for shared resources
-- **Resource Management:** Efficient thread utilization
+- **RAII Pattern**: Automatic resource cleanup using Thunder's smart pointers
+- **Reference Counting**: COM-style AddRef/Release for interface objects
+- **Proxy Objects**: Thunder's `Core::ProxyType` for type-safe object management
 
-#### Critical Sections
-```cpp
-mutable Core::CriticalSection _adminLock;
-```
-Thread safety is ensured through:
-- Administrative lock for notification list management
-- Atomic operations for state transitions
-- Protected resource access patterns
+## Plugin Configuration
 
-### Configuration Architecture
+- **Configuration File**: `FirmwareDownload.config` defines startup parameters
+- **Service Registration**: Automatic registration with Thunder framework
+- **Versioning**: Semantic versioning (Major.Minor.Patch = 1.0.0)
 
-#### Template-Based Configuration
-```cmake
-configuration = JSON()
-rootobject.add("mode", "@PLUGIN_FIRMWAREDOWNLOAD_MODE@")
-rootobject.add("locator", "lib@PLUGIN_IMPLEMENTATION@.so")
-```
+## Error Handling Strategy
 
-The configuration system provides:
-- **Build-Time Customization:** CMake template variable substitution
-- **JSON-Based Settings:** Structured configuration format
-- **Runtime Flexibility:** Dynamic service loading
+- **Return Codes**: `Core::hresult` for standardized error reporting
+- **Exception Safety**: RAII ensures resource cleanup on exceptions
+- **Validation**: Input parameter validation with early returns
+- **Logging**: Comprehensive logging at all architectural layers
 
-### Current Implementation Status
+## Scalability Considerations
 
-#### Skeleton Structure
-The current implementation provides:
-```cpp
-// All core methods currently return Core::ERROR_NONE
-Core::hresult SearchFirmware() override { return Core::ERROR_NONE; }
-Core::hresult GetDownloadState(FirmwareDownloadState& downloadState) override { return Core::ERROR_NONE; }
-Core::hresult GetFirmwareDownloadPercent(FirmwareDownloadPercent& firmwareDownloadPercent) override { return Core::ERROR_NONE; }
-```
-
-#### Ready Framework Components
-- **Plugin Registration:** `SERVICE_REGISTRATION` macros properly configured
-- **JSON-RPC Integration:** `Exchange::JFirmwareDownload` stub registration
-- **Event System:** Complete notification/observer pattern implementation
-- **Module Definition:** Proper WPEFramework module structure (`Module.h/cpp`)
-- **Configuration Templates:** Build-time configuration file generation
-
-### Build System Integration
-
-#### CMake Integration
-The project integrates with WPEFramework's build system:
-- **Dual Library Build:** Plugin and Implementation as separate shared libraries
-- **Namespace Support:** `${NAMESPACE}` variable for Thunder version compatibility
-- **Plugin Registration:** Automatic service discovery through `SERVICE_REGISTRATION`
-- **Dependency Management:** Proper linking with Thunder framework components
-- **Helper Integration:** Access to shared utility headers in `../helpers`
-
-#### Quality Assurance Integration
-- **Coverity Static Analysis:** Build script integration for code quality
-- **Test Framework Integration:** L1/L2 test workflow support
-- **CI/CD Pipeline Support:** GitHub Actions workflow integration
-
-### Error Handling Strategy
-
-#### Result Code System
-```cpp
-Core::hresult // Standardized error reporting
-```
-
-Error handling follows WPEFramework conventions:
-- **HRESULT-style return codes:** Standard error propagation
-- **Exception Safety:** RAII and smart pointer usage
-- **Logging Integration:** Structured logging for diagnostics
-
-### Security Considerations
-
-#### Token-Based Security
-```cmake
-option(DISABLE_SECURITY_TOKEN "Disable security token" OFF)
-```
-
-Security features include:
-- **Optional Token Authentication:** Build-time security configuration
-- **Interface Isolation:** COM-style interface boundaries
-- **Resource Protection:** Reference counting prevents use-after-free
-
-## Implementation Roadmap
-
-### Core Functionality Implementation
-The skeleton provides clear extension points for implementing:
-
-**Firmware Discovery:**
-```cpp
-Core::hresult SearchFirmware() override {
-    // TODO: Implement server communication
-    // TODO: Version comparison logic
-    // TODO: Trigger OnFirmwareAvailable event
-    return Core::ERROR_NONE;
-}
-```
-
-**Download Management:**
-```cpp
-Core::hresult GetDownloadState(FirmwareDownloadState& downloadState) override {
-    // TODO: Track download states (IDLE, DOWNLOADING, COMPLETED, FAILED)
-    return Core::ERROR_NONE;
-}
-```
-
-**Progress Monitoring:**
-```cpp
-Core::hresult GetFirmwareDownloadPercent(FirmwareDownloadPercent& firmwareDownloadPercent) override {
-    // TODO: Real-time download progress calculation
-    return Core::ERROR_NONE;
-}
-```
-
-### Ready Extension Points
-
-**Event System (Fully Implemented):**
-- Complete Observer pattern with thread-safe notification delivery
-- Job-based asynchronous event processing via `Core::IWorkerPool`
-- JSON-RPC event forwarding through `Exchange::JFirmwareDownload::Event`
-
-**Configuration System (Template Ready):**
-- CMake variable substitution for deployment customization
-- JSON-based runtime configuration loading
-- Service startup order and dependency management
-
-**Logging and Diagnostics (Integrated):**
-- Thread-safe logging via custom `UtilsLogging.h` macros
-- JSON-RPC parameter tracing via `UtilsJsonRpc.h` utilities
-- WPEFramework SYSLOG integration for system events
-
-This template provides a production-ready architectural foundation that requires only the core business logic implementation to become a fully functional firmware download service compatible with the WPEFramework ecosystem.
+- **Asynchronous Operations**: Non-blocking firmware operations
+- **Event-driven Architecture**: Loosely coupled notification system
+- **Resource Pooling**: Efficient thread and memory management via Thunder framework
+- **Interface Separation**: Clear separation between plugin and implementation layers
