@@ -133,7 +133,7 @@ namespace WPEFramework
                {
                    std::string errorMessage = "Failed to terminate connection: ";
                    errorMessage += e.what();
-                   LOGWARN("%s",errorMessage.c_str());
+                   LOGWARN("%s test %s",errorMessage.c_str());
                }
 
                connection->Release();
