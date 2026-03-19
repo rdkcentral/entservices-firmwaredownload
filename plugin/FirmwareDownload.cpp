@@ -78,6 +78,7 @@ namespace WPEFramework
         {
             // Register for notifications
             _firmwareDownload->Register(&_firmwareDownloadNotification);
+            
             // Invoking Plugin API register to wpeframework
             Exchange::JFirmwareDownload::Register(*this, _firmwareDownload);
         }
