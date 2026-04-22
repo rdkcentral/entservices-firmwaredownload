@@ -127,7 +127,7 @@ namespace WPEFramework
                {
                    connection->Terminate();
                    // Log success if needed
-                   LOGWARN("Connection terminated successfully.");
+                   LOGWARN("Connection terminated successfully%s.");
                }
                catch (const std::exception& e)
                {
