@@ -21,9 +21,6 @@ cmake_minimum_required(VERSION 3.3)
 
 find_package(WPEFramework)
 
-# All packages that did not deliver a CMake Find script are located in the cmake directory.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
-
 option(COMCAST_CONFIG "Comcast services configuration" ON)
 if(COMCAST_CONFIG)
     include(services.cmake)
