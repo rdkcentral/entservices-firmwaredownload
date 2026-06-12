@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           ssh-key: ${{ secrets.RDKCM_DEPLOY_KEY }}
