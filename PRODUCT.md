@@ -2,7 +2,7 @@
 
 ## Product Description
 
-The **FirmwareDownload service** is a **Thunder/WPEFramework plugin** that provides comprehensive firmware update capabilities for RDK (Reference Design Kit) devices including set-top boxes, smart TVs, and other connected devices. It enables **remote firmware management** through a standardized JSON-RPC API, allowing operators and applications to search for, download, and manage firmware updates across device fleets.
+The **FirmwareDownload service** is a **Thunder plugin** that provides comprehensive firmware update capabilities for RDK (Reference Design Kit) devices including set-top boxes, smart TVs, and other connected devices. It enables **remote firmware management** through a standardized JSON-RPC API, allowing operators and applications to search for, download, and manage firmware updates across device fleets.
 
 ## Core Product Features
 
@@ -56,7 +56,7 @@ The **FirmwareDownload service** is a **Thunder/WPEFramework plugin** that provi
 - **Error Handling**: Comprehensive error codes and descriptive messages
 
 ### Integration Points
-- **Thunder Framework**: Native integration with WPEFramework ecosystem
+- **Thunder Framework**: Native integration with Thunder ecosystem
 - **RDK Services**: Seamless integration with other RDK service components
 - **Platform Services**: Interfaces with underlying firmware management systems
 - **Security Framework**: Leverages Thunder's security and authentication mechanisms

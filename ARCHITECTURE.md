@@ -2,7 +2,7 @@
 
 ## Overview
 
-The FirmwareDownload plugin is a **Thunder/WPEFramework-based service** designed for RDK (Reference Design Kit) devices to provide firmware update capabilities. It implements a **plugin architecture pattern** where the main plugin acts as a bridge between client applications and the underlying firmware download implementation.
+The FirmwareDownload plugin is a **Thunder-based service** designed for RDK (Reference Design Kit) devices to provide firmware update capabilities. It implements a **plugin architecture pattern** where the main plugin acts as a bridge between client applications and the underlying firmware download implementation.
 
 ## Architecture Components
 
@@ -12,7 +12,7 @@ The FirmwareDownload plugin is a **Thunder/WPEFramework-based service** designed
   - Plugin lifecycle management (Initialize/Deinitialize)
   - JSON-RPC method dispatch and event handling
   - Client notification management via Thunder framework
-  - Service registration with Thunder/WPEFramework
+  - Service registration with Thunder
 
 ### 2. Implementation Layer (`FirmwareDownloadImplementation`) 
 - **Purpose**: Core business logic for firmware operations
