@@ -23,7 +23,7 @@
 #define API_VERSION_NUMBER_MINOR 0
 #define API_VERSION_NUMBER_PATCH 0
 
-namespace WPEFramework
+namespace Thunder
 {
 
     namespace {
@@ -44,7 +44,7 @@ namespace WPEFramework
     {
 
     /*
-     *Register FirmwareDownload module as wpeframework plugin
+     *Register FirmwareDownload module as thunder plugin
      **/
     SERVICE_REGISTRATION(FirmwareDownload, API_VERSION_NUMBER_MAJOR, API_VERSION_NUMBER_MINOR, API_VERSION_NUMBER_PATCH);
 
@@ -78,7 +78,7 @@ namespace WPEFramework
         {
             // Register for notifications
             _firmwareDownload->Register(&_firmwareDownloadNotification);
-            // Invoking Plugin API register to wpeframework
+            // Invoking Plugin API register to thunder
             Exchange::JFirmwareDownload::Register(*this, _firmwareDownload);
         }
         else
@@ -159,4 +159,4 @@ namespace WPEFramework
         }
     }
 } // namespace Plugin
-} // namespace WPEFramework
+} // namespace Thunder

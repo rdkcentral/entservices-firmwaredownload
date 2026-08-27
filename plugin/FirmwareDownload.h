@@ -26,7 +26,7 @@
 #include "UtilsLogging.h"
 #include "tracing/Logging.h"
 
-namespace WPEFramework 
+namespace Thunder 
 {
     namespace Plugin
     {
@@ -104,4 +104,4 @@ namespace WPEFramework
                     Core::Sink<Notification> _firmwareDownloadNotification;
         };
     } // namespace Plugin
-} // namespace WPEFramework
+} // namespace Thunder
