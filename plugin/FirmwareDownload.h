@@ -101,7 +101,7 @@ namespace Thunder
                     PluginHost::IShell* _service{};
                     uint32_t _connectionId{};
                     Exchange::IFirmwareDownload* _firmwareDownload{};
-                    Core::Sink<Notification> _firmwareDownloadNotification;
+                    Core::SinkType<Notification> _firmwareDownloadNotification;
         };
     } // namespace Plugin
 } // namespace Thunder
